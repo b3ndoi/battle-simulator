@@ -2,21 +2,118 @@
 
 namespace Tests\Feature;
 
+use App\Army;
+use App\Game;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class ArmyControllerTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
-    public function testExample()
+    use RefreshDatabase;
+	/** @test */
+    public function it_creates_an_army_for_a_specific_game()
     {
-        $response = $this->get('/');
+        $game = factory(Game::class)->create();
+        
+        $army = factory(Army::class)->make()->toArray();
 
-        $response->assertStatus(200);
+        $res = $this->json('POST', '/api/game/'.$game->id.'/armies', $army);
+        $res->assertStatus(201);
+        $res->assertJsonFragment($army);
+        $this->assertDatabaseHas('armies', $army);
+    }
+
+	/** @test */
+    public function it_throws_an_error_when_adding_an_army_if_a_the_game_is_finished()
+    {
+        $game = factory(Game::class)->create(['status' => 1]);
+        
+        $army = factory(Army::class)->make()->toArray();
+
+        $res = $this->json('POST', '/api/game/'.$game->id.'/armies', $army);
+        $res->assertStatus(422);
+        $this->assertDatabaseMissing('armies', $army);
+    }
+	/** @test */
+    public function it_throws_an_error_when_adding_an_army_if_there_is_no_name()
+    {
+        $game = factory(Game::class)->create();
+        
+        $army = factory(Army::class)->make(["name" => null])->toArray();
+
+        $res = $this->json('POST', '/api/game/'.$game->id.'/armies', $army);
+        $res->assertStatus(422);
+        $res->assertJsonPath('errors.name', ["The name field is required."]);
+        $this->assertDatabaseMissing('armies', $army);
+    }
+	/** @test */
+    public function it_throws_an_error_when_adding_an_army_if_there_is_no_units()
+    {
+        $game = factory(Game::class)->create();
+        
+        $army = factory(Army::class)->make(["units" => null])->toArray();
+
+        $res = $this->json('POST', '/api/game/'.$game->id.'/armies', $army);
+        $res->assertStatus(422);
+        $res->assertJsonPath('errors.units', ["The units field is required."]);
+        $this->assertDatabaseMissing('armies', $army);
+    }
+	/** @test */
+    public function it_throws_an_error_when_adding_an_army_if_units_are_less_then_specified()
+    {
+        $game = factory(Game::class)->create();
+        
+        $army = factory(Army::class)->make(["units" => 55])->toArray();
+
+        $res = $this->json('POST', '/api/game/'.$game->id.'/armies', $army);
+        $res->assertStatus(422);
+        $res->assertJsonPath('errors.units', ["The units must be between 80 and 100."]);
+        $this->assertDatabaseMissing('armies', $army);
+    }
+	/** @test */
+    public function it_throws_an_error_when_adding_an_army_if_units_are_more_then_specified()
+    {
+        $game = factory(Game::class)->create();
+        
+        $army = factory(Army::class)->make(["units" => 101])->toArray();
+
+        $res = $this->json('POST', '/api/game/'.$game->id.'/armies', $army);
+        $res->assertStatus(422);
+        $res->assertJsonPath('errors.units', ["The units must be between 80 and 100."]);
+        $this->assertDatabaseMissing('armies', $army);
+    }
+	/** @test */
+    public function it_throws_an_error_when_adding_an_army_if_units_are_not_an_int()
+    {
+        $game = factory(Game::class)->create();
+        $army = factory(Army::class)->make(["units" => "asdsa"])->toArray();
+
+        $res = $this->json('POST', '/api/game/'.$game->id.'/armies', $army);
+        
+        $res->assertStatus(422);
+        $this->assertDatabaseMissing('armies', $army);
+    }
+	/** @test */
+    public function it_throws_an_error_when_adding_an_army_if_there_is_no_strategy()
+    {
+        $game = factory(Game::class)->create();
+        $army = factory(Army::class)->make(["strategy" => null])->toArray();
+
+        $res = $this->json('POST', '/api/game/'.$game->id.'/armies', $army);
+        $res->assertJsonPath('errors.strategy', ["The strategy field is required."]);
+        $res->assertStatus(422);
+        $this->assertDatabaseMissing('armies', $army);
+    }
+	/** @test */
+    public function it_throws_an_error_when_adding_an_army_if_strategy_does_not_exist()
+    {
+        $game = factory(Game::class)->create();
+        $army = factory(Army::class)->make(["strategy" => "test"])->toArray();
+
+        $res = $this->json('POST', '/api/game/'.$game->id.'/armies', $army);
+        $res->assertStatus(422);
+        $res->assertJsonPath('errors.strategy', ["The selected strategy is invalid."]);
+        $this->assertDatabaseMissing('armies', $army);
     }
 }

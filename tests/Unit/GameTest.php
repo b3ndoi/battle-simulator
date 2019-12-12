@@ -20,4 +20,23 @@ class GameTest extends TestCase
         $this->assertCount(10, $game->armies->toArray());
         $this->assertInstanceOf(Collection::class, $game->armies);
     }
+    /** @test */
+    public function it_returns_active_of_inactive_games_based_on_the_given_param(){
+        factory(Game::class, 3)->create();
+        factory(Game::class, 5)->create(["status"=>1]);
+        $active_games = Game::isFinished(0)->get();
+        $inactive_games = Game::isFinished(1)->get();
+        $this->assertCount(3, $active_games);
+        $this->assertCount(5, $inactive_games);
+    }
+
+	/** @test */
+    public function it_creates_an_army_for_the_specified_game()
+    {
+        $game = factory(Game::class)->create();
+        $army = factory(Army::class)->make();
+        
+        $game->addArmy($army->toArray());
+        $this->assertCount(1,  $game->armies->toArray());
+    }
 }

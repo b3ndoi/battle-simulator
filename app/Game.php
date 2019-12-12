@@ -9,6 +9,14 @@ class Game extends Model
     protected $guarded = ['id'];
 
     public function armies(){
-        return $this->hasMany(Army::class);
+        return $this->hasMany(Army::class)->orderBy('created_at');
+    }
+
+    public function addArmy($army){
+        return $this->armies()->create($army);
+    }
+
+    public function scopeIsFinished($query, $is_active){
+        return $query->where('status', $is_active);
     }
 }

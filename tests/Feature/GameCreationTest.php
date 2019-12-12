@@ -28,7 +28,16 @@ class GameCreationTest extends TestCase
 	/** @test */
     public function it_throws_an_error_if_there_are_5_games_in_progress()
     {
-        $this->withoutExceptionHandling();
+        factory(Game::class, 5)->create();
+        $res = $this->json('POST', '/api/game');
+        $res->assertStatus(422);
+        $res->assertJson([
+            "message" => "There can be only 5 games active"
+        ]);
+        $this->assertDatabaseMissing('games', [
+            "id"=> 6,
+            "status" => 0
+        ]);
     }
     
     /** @test */
@@ -36,7 +45,7 @@ class GameCreationTest extends TestCase
         $games = factory(Game::class, 5)->create();
         $res = $this->json('GET', '/api/game');
         $res->assertStatus(200);
-        $res->assertJsonCount(10);
+        $res->assertJsonCount(5);
 
     }
 }
