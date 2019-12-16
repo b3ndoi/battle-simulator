@@ -9,7 +9,11 @@ class Game extends Model
     protected $guarded = ['id'];
 
     public function armies(){
-        return $this->hasMany(Army::class)->orderBy('created_at');
+        return $this->hasMany(Army::class)->orderBy('order');
+    }
+
+    public function turns(){
+        return $this->hasMany(Turn::class, 'game_id')->orderBy('created_at');
     }
 
     public function addArmy($army){

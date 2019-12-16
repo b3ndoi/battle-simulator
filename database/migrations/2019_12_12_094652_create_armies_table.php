@@ -18,6 +18,7 @@ class CreateArmiesTable extends Migration
             $table->integer('game_id')->unsigned();
             $table->string('name');
             $table->integer('units');
+            $table->integer('order');
             $table->enum('strategy', ['random', 'weakest', 'strongest']);
             $table->timestamps();
         });

@@ -16,3 +16,5 @@ use Illuminate\Http\Request;
 Route::get('/game', 'GameController@index');
 Route::middleware(['active.games'])->post('/game', 'GameController@store');
 Route::post('/game/{game}/armies', 'GameController@addArmy');
+Route::post('/game/{game}/attack', 'GameController@runAttack');
+Route::put('/game/{game}/reset', 'GameController@resetGame');

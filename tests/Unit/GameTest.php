@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Army;
 use App\Game;
+use App\Turn;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -19,6 +20,19 @@ class GameTest extends TestCase
         $armies = factory(Army::class, 10)->create(['game_id' => $game->id]);
         $this->assertCount(10, $game->armies->toArray());
         $this->assertInstanceOf(Collection::class, $game->armies);
+    }
+	/** @test */
+    public function it_can_have_many_turns()
+    {
+        $game = factory(Game::class)->create();
+        factory(Army::class, 2)->create(['game_id' => $game->id]);
+        factory(Turn::class, 3)->create([
+            "game_id" => $game->id,
+            "attacker_id" => 1,
+            "defender_id" => 2,
+        ]);
+        $this->assertCount(3, $game->turns->toArray());
+        $this->assertInstanceOf(Collection::class, $game->turns);
     }
     /** @test */
     public function it_returns_active_of_inactive_games_based_on_the_given_param(){

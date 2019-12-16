@@ -1,5 +1,8 @@
 <?php
 
+namespace App\Library;
+
+use App\Turn;
 use Illuminate\Database\Eloquent\Collection;
 
 class BattleSimulation{
@@ -8,51 +11,101 @@ class BattleSimulation{
     
     protected $logs = [];
 
-    public function __construct(Collection $armies)
+    protected $destroiedArmies = [];
+
+    public function __construct($armies)
     {
         $this->armies = $armies;
     }
 
     public function getTurnLogs(){
-        $attacker = new Object;
-        $strategy = $attacker->strategy;
-        $defender = $this->$strategy();
-        if($this->attack($attacker->units)){
-            // calculate damage
-
-            // log hit
-            if($defender->units <= 0){
-                $this->logs[] = $attacker->name." ARMY attacked ".$defender->name." ARMY and DESTROYED IT";
-                $this->removeDestroyedArmy($defender->id);
-            }else{
-                $this->logs[] = $attacker->name." ARMY attacked ".$defender->name." ARMY and DESTROYED ".$this->calculateDamage($attacker)." UNITS";
+        foreach ($this->armies as $attacker) {
+            // only if army is not destroied continiue
+            if(!collect($this->destroiedArmies)->contains($attacker->id)){
+                $strategy = $attacker->strategy;
+                $defender = $this->$strategy($attacker->id);
+                if(!$defender){
+                    $this->logs[] = $defender;
+                }
+                if($this->attack($attacker->units)){
+                    // calculate damage
+                    $damage = $this->calculateDamage($attacker->units);
+                    // Remove destroied units
+                    $defender->units -= $damage;
+                    if($defender->units <= 0){
+                        // Log hit
+                        $this->logs[] = $attacker->name." ARMY attacked ".$defender->name." ARMY and DESTROYED IT";
+                        
+                        // Add to destroied array
+                        $this->destroiedArmies[] = $defender->id;
+                        // Remove army from active armies 
+                        $this->removeDestroyedArmy($defender->id);
+                    }else{
+                        // Log hit 
+                        $this->logs[] = $attacker->name." ARMY attacked ".$defender->name." ARMY and DESTROYED ".$damage." UNITS";
+                        // Update attacked army units 
+                        $this->updateDefenderUnits($defender);
+                    }
+                    Turn::create([
+                        "game_id" => 1,
+                        "attacker_id" => $attacker->id,
+                        "defender_id" => $defender->id,
+                        "damage" => $damage
+                    ]);
+                }else{
+                    // Log miss
+                    $this->logs[] = $attacker->name." ARMY attacked ".$defender->name." ARMY and MISSED";
+                    Turn::create([
+                        "game_id" => 1,
+                        "attacker_id" => $attacker->id,
+                        "defender_id" => $defender->id,
+                        "damage" => 0
+                    ]);
+                }
+                // Wait for reload
+                sleep($this->calculateReloadTime($attacker->units));
             }
+
         }
-        // Log miss
-        $this->logs[] = $attacker->name." ARMY attacked ".$defender->name." ARMY and MISSED";
+        if($this->armies->count() == 1){
+            $winner = $this->armies->first();
+            $this->logs[] = $winner->name." ARMY WON THE GAME";
+        }
+        return $this->logs;
     }
 
-    protected function random($attacker){
-        $availableArmies = $this->armies
-            ->where('id', '!=', $attacker->id);
-        $indexOfArmy = rand(0, $availableArmies->count() - 1);
-        return $availableArmies[$indexOfArmy];
+    public function getArmies(){
+        return collect($this->armies)->values();
     }
-    protected function weakest($attacker){
+
+    protected function random($id){
         return $this->armies
-            ->where('id', '!=', $attacker->id)
+            ->where('id', '!=', $id)->random();
+    }
+    protected function weakest($id){
+        return $this->armies
+            ->where('id', '!=', $id)
             ->sortBy('units')->first();
     }
-    protected function strongest($attacker){
+    protected function strongest($id){
         // remove active attacker and get the target army
         return $this->armies
-            ->where('id', '!=', $attacker->id)
+            ->where('id', '!=', $id)
             ->sortByDesc('units')->first();
     }
     protected function removeDestroyedArmy($id){
-        $this->armies = $this->armies->where('id', '!=', $id );
+        $this->armies = collect($this->armies->where('id', '!=', $id ))->values();
+    }
+    protected function updateDefenderUnits($defender){
+        $this->armies = $this->armies->map(function($army)use($defender){
+            if($army->id == $defender->id){           
+                return $defender;
+            }
+            return $army;
+        });
         return;
     }
+
     /**
      * Returns if the attack was succesfull or not
      *
@@ -79,6 +132,7 @@ class BattleSimulation{
         }
         return floor($numOfUnits/2);
     }
+
     /**
      * Returns the reload time
      *

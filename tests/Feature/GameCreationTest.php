@@ -4,9 +4,7 @@ namespace Tests\Feature;
 
 use App\Army;
 use App\Game;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class GameCreationTest extends TestCase
@@ -47,5 +45,24 @@ class GameCreationTest extends TestCase
         $res->assertStatus(200);
         $res->assertJsonCount(5);
 
+    }
+
+	/** @test */
+    public function a_game_can_not_start_if_there_are_less_than_5_armies()
+    {
+        $this->withoutExceptionHandling();
+
+        $game = factory(Game::class)->create();
+        $armies = factory(Army::class, 4)->create(['game_id' => $game->id]);
+        $res = $this->json('POST', '/api/game/'.$game->id.'/attack')
+            ->assertStatus(422);
+    }
+	/** @test */
+    public function a_game_can_not_be_restart_if_there_are_no_turns_played()
+    {
+        $game = factory(Game::class)->create();
+        $armies = factory(Army::class, 4)->create(['game_id' => $game->id]);
+        $this->json('PUT', '/api/game/'.$game->id.'/reset')
+            ->assertStatus(422);
     }
 }
