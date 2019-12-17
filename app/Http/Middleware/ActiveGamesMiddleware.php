@@ -17,7 +17,7 @@ class ActiveGamesMiddleware
     public function handle($request, Closure $next)
     {
         $active_game_count = Game::isFinished(0)->count();
-        if($active_game_count >= 5){
+        if ($active_game_count >= 5) {
             return response()->json([
                 "message" => "There can be only 5 games active"
             ], 422);

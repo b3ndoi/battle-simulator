@@ -8,19 +8,23 @@ class Game extends Model
 {
     protected $guarded = ['id'];
 
-    public function armies(){
+    public function armies()
+    {
         return $this->hasMany(Army::class)->orderBy('order');
     }
 
-    public function turns(){
+    public function turns()
+    {
         return $this->hasMany(Turn::class, 'game_id')->orderBy('created_at');
     }
 
-    public function addArmy($army){
+    public function addArmy($army)
+    {
         return $this->armies()->create($army);
     }
 
-    public function scopeIsFinished($query, $is_active){
+    public function scopeIsFinished($query, $is_active)
+    {
         return $query->where('status', $is_active);
     }
 }

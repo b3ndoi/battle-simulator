@@ -13,18 +13,22 @@ class Army extends Model
         'game_id' => 'integer',
     ];
 
-    public function game(){
+    public function game()
+    {
         return $this->belongsTo(Game::class);
     }
 
-    public function damageTaken(){
+    public function damageTaken()
+    {
         return $this->defending()->sum('damage');
     }
 
-    public function defending(){
+    public function defending()
+    {
         return $this->hasMany(Turn::class, 'defender_id');
     }
-    public function resetDamageTaken(){
+    public function resetDamageTaken()
+    {
         $this->units += $this->damageTaken();
         $this->save();
         $this->defending()->delete();

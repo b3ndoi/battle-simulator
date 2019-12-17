@@ -10,14 +10,16 @@ class Turn extends Model
     protected $casts = [
         'damage' => 'integer',
     ];
-    public function game(){
+    public function game()
+    {
         return $this->belongsTo(Game::class);
     }
-    public function attacker(){
+    public function attacker()
+    {
         return $this->belongsTo(Army::class, 'attacker_id');
     }
-    public function defender(){
+    public function defender()
+    {
         return $this->belongsTo(Army::class, 'defender_id');
     }
-
 }

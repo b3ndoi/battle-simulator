@@ -16,17 +16,19 @@ class GameController extends Controller
      *
      * @return void
      */
-    public function index(){
+    public function index()
+    {
         $games = Game::with('armies')->get();
-        return response()->json($games , 200);
+        return response()->json($games, 200);
     }
     /**
      * Lists game armies
      *
      * @return void
      */
-    public function armies(Game $game){
-        return response()->json($game->armies , 200);
+    public function armies(Game $game)
+    {
+        return response()->json($game->armies, 200);
     }
     /**
      * Adds an army to the game
@@ -34,12 +36,13 @@ class GameController extends Controller
      * @param Game $game
      * @return void
      */
-    public function addArmy(Game $game){
-        if($game->status == 1){
+    public function addArmy(Game $game)
+    {
+        if ($game->status == 1) {
             return response()->json([
                 "message" => "You cannot add armies to a finished game."
             ], 422);
-        } 
+        }
         $attributes = request()->validate([
             "name" => "required",
             "units" => "required|integer|between:80,100",
@@ -50,11 +53,11 @@ class GameController extends Controller
         ]);
         $attributes['order'] = Carbon::now()->getTimestamp();
         
-        if($game->turns->count() > 0){
+        if ($game->turns->count() > 0) {
             $attributes['order'] = -1 * $attributes['order'];
         }
         $game->addArmy($attributes);
-        return response()->json($game->armies , 201);
+        return response()->json($game->armies, 201);
     }
     /**
      * Starts the game or runs am Attack
@@ -62,14 +65,15 @@ class GameController extends Controller
      * @param [int] $game_id
      * @return void
      */
-    public function runAttack($game_id){
+    public function runAttack($game_id)
+    {
         $game = Game::where('id', '=', $game_id)->with(['armies', 'turns'])->get()->first();
-        if($game->armies->count() < 5 && $game->turns->count() == 0){
+        if ($game->armies->count() < 5 && $game->turns->count() == 0) {
             return response()->json([
                 "message" => "You cannot start a game with less then 5 armies."
             ], 422);
         }
-        if($game->status == 1){
+        if ($game->status == 1) {
             return response()->json([
                 "message" => "Game finished."
             ], 422);
@@ -77,7 +81,7 @@ class GameController extends Controller
         $armies = $game->armies->where("units", ">", 0);
         $battle = new BattleSimulation($armies);
         $logs = $battle->getTurnLogs();
-        if($battle->getArmies()->count() == 1){
+        if ($battle->getArmies()->count() == 1) {
             $game->status = 1;
             $logs[] = "Game Finished!";
             $game->save();
@@ -85,36 +89,36 @@ class GameController extends Controller
         }
         $logs[] = "Waiting for next turn...";
         return response()->json($logs, 200);
-
     }
 
-    public function getLogs($game_id){
+    public function getLogs($game_id)
+    {
         $game = Game::where('id', '=', $game_id)->with(['turns.attacker', 'turns.defender'])->get()->first();
-        if($game->turns->count() == 0){
+        if ($game->turns->count() == 0) {
             return response()->json(["Game not started"]);
         }
         
         $logs[] = "Game started";
-        foreach($game->turns as $turn){
+        foreach ($game->turns as $turn) {
             $dateTime = "<span class='text-yellow-400'>[".Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')."]</span>  ";
-            if($turn->damage > 0){
-                if($turn->is_destroied == 1){
+            if ($turn->damage > 0) {
+                if ($turn->is_destroied == 1) {
                     $logs[] = $dateTime.$turn->attacker->name." ARMY 🚀 attacked ".$turn->defender->name." ARMY and DESTROYED IT 🏴‍☠️";
-                }else{
+                } else {
                     $logs[] = $dateTime.$turn->attacker->name." ARMY 🚀 attacked ".$turn->defender->name." ARMY and DESTROYED ".$turn->damage." UNITS 💥";
                 }
-            }else{
+            } else {
                 $logs[] = $dateTime.$turn->attacker->name." ARMY 🚀 attacked ".$turn->defender->name." ARMY and MISSED 🙊";
             }
         }
         $armies = $game->armies->where('units', '>', 0);
-        if($armies->count() == 1){
+        if ($armies->count() == 1) {
             $logs[] = "🏆 ".$armies->first()->name." WON THE GAME 🏆";
         }
 
-        if($game->status == 1){
+        if ($game->status == 1) {
             $logs[] = "Game Finished!";
-        }else{
+        } else {
             $logs[] = "Waiting for next turn...";
         }
 
@@ -126,10 +130,11 @@ class GameController extends Controller
      *
      * @return void
      */
-    public function store(){
+    public function store()
+    {
         $game = Game::create(['status'=> 0]);
         $game->save();
-        return response()->json($game , 201);
+        return response()->json($game, 201);
     }
     /**
      * Resets a specific game
@@ -137,20 +142,20 @@ class GameController extends Controller
      * @param Game $game
      * @return void
      */
-    public function resetGame(Game $game){
-        if($game->turns->count() == 0){
+    public function resetGame(Game $game)
+    {
+        if ($game->turns->count() == 0) {
             return response()->json([
                 "message" => "You cannot restart a game that has not started."
             ], 422);
         }
         $armies = $game->armies;
 
-        foreach($armies as $army){
+        foreach ($armies as $army) {
             $army->resetDamageTaken();
         }
         $game->status = 0;
         $game->save();
         return response($game->armies, 200);
-
     }
 }
