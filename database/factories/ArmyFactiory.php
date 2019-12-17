@@ -13,7 +13,7 @@ $factory->define(Army::class, function (Faker $faker) {
     return [
         // Remove after testing
         // "id" => $faker->uuid(),
-        "game_id" => factory(Game::class)->create()->id,
+        // "game_id" => factory(Game::class)->create()->id,
         "name" => $faker->word(),
         "units" => $units,
         "strategy" => $strategy,
