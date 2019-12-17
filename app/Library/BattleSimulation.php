@@ -45,8 +45,11 @@ class BattleSimulation
                             "damage" => $damage,
                             "is_destroied" => 1
                         ]);
-                        $dateTime = "<span class='text-yellow-400'>[".Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')."]</span>  ";
-                        $this->logs[] = $dateTime.$attacker->name." ARMY 🚀 attacked ".$defender->name." ARMY and DESTROYED IT 🏴‍☠️";
+                        $dateTime = "<span class='text-yellow-400'>[".
+                            Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')
+                            ."]</span>  ";
+                        $this->logs[] = $dateTime.$attacker->name.
+                            " ARMY 🚀 attacked ".$defender->name." ARMY and DESTROYED IT 🏴‍☠️";
                         
                         // Add to destroied array
                         $this->destroiedArmies[] = $defender->id;
@@ -61,8 +64,11 @@ class BattleSimulation
                             "damage" => $damage,
                         ]);
 
-                        $dateTime = "<span class='text-yellow-400'>[".Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')."]</span>  ";
-                        $this->logs[] = $dateTime.$attacker->name." ARMY 🚀 attacked ".$defender->name." ARMY and DESTROYED ".$damage." UNITS 💥";
+                        $dateTime = "<span class='text-yellow-400'>[".
+                            Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')
+                            ."]</span>  ";
+                        $this->logs[] = $dateTime.$attacker->name.
+                            " ARMY 🚀 attacked ".$defender->name." ARMY and DESTROYED ".$damage." UNITS 💥";
                         // Update attacked army units
                         $this->updateDefenderUnits($defender);
                     }
@@ -74,8 +80,11 @@ class BattleSimulation
                         "defender_id" => $defender->id,
                         "damage" => 0,
                     ]);
-                    $dateTime = "<span class='text-yellow-400'>[".Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')."]</span>  ";
-                    $this->logs[] = $dateTime.$attacker->name." ARMY 🚀 attacked ".$defender->name." ARMY and MISSED 🙊";
+                    $dateTime = "<span class='text-yellow-400'>[".
+                        Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')
+                        ."]</span>  ";
+                    $this->logs[] = $dateTime.$attacker->name.
+                        " ARMY 🚀 attacked ".$defender->name." ARMY and MISSED 🙊";
                 }
                 // Wait for reload
                 sleep($this->calculateReloadTime($attacker->units));

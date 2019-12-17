@@ -100,15 +100,20 @@ class GameController extends Controller
         
         $logs[] = "Game started";
         foreach ($game->turns as $turn) {
-            $dateTime = "<span class='text-yellow-400'>[".Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')."]</span>  ";
+            $dateTime = "<span class='text-yellow-400'>[".
+                Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')
+                ."]</span>  ";
             if ($turn->damage > 0) {
                 if ($turn->is_destroied == 1) {
-                    $logs[] = $dateTime.$turn->attacker->name." ARMY 🚀 attacked ".$turn->defender->name." ARMY and DESTROYED IT 🏴‍☠️";
+                    $logs[] = $dateTime.$turn->attacker->name.
+                        " ARMY 🚀 attacked ".$turn->defender->name." ARMY and DESTROYED IT 🏴‍☠️";
                 } else {
-                    $logs[] = $dateTime.$turn->attacker->name." ARMY 🚀 attacked ".$turn->defender->name." ARMY and DESTROYED ".$turn->damage." UNITS 💥";
+                    $logs[] = $dateTime.$turn->attacker->name.
+                        " ARMY 🚀 attacked ".$turn->defender->name." ARMY and DESTROYED ".$turn->damage." UNITS 💥";
                 }
             } else {
-                $logs[] = $dateTime.$turn->attacker->name." ARMY 🚀 attacked ".$turn->defender->name." ARMY and MISSED 🙊";
+                $logs[] = $dateTime.$turn->attacker->name.
+                    " ARMY 🚀 attacked ".$turn->defender->name." ARMY and MISSED 🙊";
             }
         }
         $armies = $game->armies->where('units', '>', 0);
