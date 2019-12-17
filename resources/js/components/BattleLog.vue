@@ -16,9 +16,6 @@
             <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4" @click="runAttack" :class="isInProgress?'cursor-not-allowed':''" :disabled="isInProgress">
                 Run Attack 🚀
             </button>
-            <!-- <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 opacity-50 cursor-not-allowed">
-                Run Attack 🚀
-            </button> -->
         </div>
     </div>
 </template>
@@ -47,8 +44,8 @@ export default {
         async runAttack(){
             try {
                 this.isInProgress = true
-                const battleLogs = await axios.post('/api/game/'+this.game_id+'/attack');    
-                this.logs = [...this.logs, ...battleLogs.data];
+                const battleLogs = await axios.post('/api/game/'+this.game_id+'/attack');   
+                this.logs = this.logs.length == 1?["Game started", ...battleLogs.data]:[...this.logs, ...battleLogs.data];
                 this.isInProgress = false
                 window.Event.$emit('fresh-armies');
             } catch (error) {

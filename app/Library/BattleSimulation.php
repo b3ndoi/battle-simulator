@@ -15,9 +15,10 @@ class BattleSimulation
 
     protected $destroiedArmies = [];
 
-    public function __construct($armies)
+    public function __construct($game_id, $armies)
     {
         $this->armies = $armies;
+        $this->game_id = $game_id;
         $this->runAttack();
     }
     private function runAttack(){
@@ -38,7 +39,7 @@ class BattleSimulation
                     if ($defender->units <= 0) {
                         // Log hit
                         $turn = Turn::create([
-                            "game_id" => 1,
+                            "game_id" => $this->game_id,
                             "attacker_id" => $attacker->id,
                             "defender_id" => $defender->id,
                             "damage" => $damage,
@@ -57,7 +58,7 @@ class BattleSimulation
                     } else {
                         // Log hit
                         $turn = Turn::create([
-                            "game_id" => 1,
+                            "game_id" => $this->game_id,
                             "attacker_id" => $attacker->id,
                             "defender_id" => $defender->id,
                             "damage" => $damage,
@@ -74,7 +75,7 @@ class BattleSimulation
                 } else {
                     // Log miss
                     $turn = Turn::create([
-                        "game_id" => 1,
+                        "game_id" => $this->game_id,
                         "attacker_id" => $attacker->id,
                         "defender_id" => $defender->id,
                         "damage" => 0,
