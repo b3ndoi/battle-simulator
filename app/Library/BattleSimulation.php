@@ -3,6 +3,7 @@
 namespace App\Library;
 
 use App\Turn;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
 class BattleSimulation{
@@ -32,9 +33,18 @@ class BattleSimulation{
                     $damage = $this->calculateDamage($attacker->units);
                     // Remove destroied units
                     $defender->units -= $damage;
+                    $defender->save();
                     if($defender->units <= 0){
                         // Log hit
-                        $this->logs[] = $attacker->name." ARMY attacked ".$defender->name." ARMY and DESTROYED IT";
+                        $turn = Turn::create([
+                            "game_id" => 1,
+                            "attacker_id" => $attacker->id,
+                            "defender_id" => $defender->id,
+                            "damage" => $damage, 
+                            "is_destroied" => 1
+                        ]);
+                        $dateTime = "<span class='text-yellow-400'>[".Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')."]</span>  ";
+                        $this->logs[] = $dateTime.$attacker->name." ARMY 🚀 attacked ".$defender->name." ARMY and DESTROYED IT 🏴‍☠️";
                         
                         // Add to destroied array
                         $this->destroiedArmies[] = $defender->id;
@@ -42,25 +52,28 @@ class BattleSimulation{
                         $this->removeDestroyedArmy($defender->id);
                     }else{
                         // Log hit 
-                        $this->logs[] = $attacker->name." ARMY attacked ".$defender->name." ARMY and DESTROYED ".$damage." UNITS";
+                        $turn = Turn::create([
+                            "game_id" => 1,
+                            "attacker_id" => $attacker->id,
+                            "defender_id" => $defender->id,
+                            "damage" => $damage, 
+                        ]);
+
+                        $dateTime = "<span class='text-yellow-400'>[".Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')."]</span>  ";
+                        $this->logs[] = $dateTime.$attacker->name." ARMY 🚀 attacked ".$defender->name." ARMY and DESTROYED ".$damage." UNITS 💥";
                         // Update attacked army units 
                         $this->updateDefenderUnits($defender);
                     }
-                    Turn::create([
-                        "game_id" => 1,
-                        "attacker_id" => $attacker->id,
-                        "defender_id" => $defender->id,
-                        "damage" => $damage
-                    ]);
                 }else{
                     // Log miss
-                    $this->logs[] = $attacker->name." ARMY attacked ".$defender->name." ARMY and MISSED";
-                    Turn::create([
+                    $turn = Turn::create([
                         "game_id" => 1,
                         "attacker_id" => $attacker->id,
                         "defender_id" => $defender->id,
-                        "damage" => 0
+                        "damage" => 0,
                     ]);
+                    $dateTime = "<span class='text-yellow-400'>[".Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')."]</span>  ";
+                    $this->logs[] = $dateTime.$attacker->name." ARMY 🚀 attacked ".$defender->name." ARMY and MISSED 🙊";
                 }
                 // Wait for reload
                 sleep($this->calculateReloadTime($attacker->units));
@@ -69,7 +82,7 @@ class BattleSimulation{
         }
         if($this->armies->count() == 1){
             $winner = $this->armies->first();
-            $this->logs[] = $winner->name." ARMY WON THE GAME";
+            $this->logs[] = "🏆 ".$winner->name." ARMY WON THE GAME 🏆";
         }
         return $this->logs;
     }

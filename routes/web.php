@@ -14,3 +14,7 @@
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/game/{game}', function ($game_id) {
+    $game = App\Game::findOrFail($game_id);
+    return view('battle', compact('game'));
+});

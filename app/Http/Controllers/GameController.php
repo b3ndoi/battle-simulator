@@ -17,8 +17,16 @@ class GameController extends Controller
      * @return void
      */
     public function index(){
-        $games = Game::all();
+        $games = Game::with('armies')->get();
         return response()->json($games , 200);
+    }
+    /**
+     * Lists game armies
+     *
+     * @return void
+     */
+    public function armies(Game $game){
+        return response()->json($game->armies , 200);
     }
     /**
      * Adds an army to the game
@@ -68,14 +76,15 @@ class GameController extends Controller
         }
         $armies = $game->armies->where("units", ">", 0);
         $battle = new BattleSimulation($armies);
+        $logs = $battle->getTurnLogs();
         if($battle->getArmies()->count() == 1){
             $game->status = 1;
+            $logs[] = "Game Finished!";
             $game->save();
-            return response()->json([
-                "message" => "Game finished"
-            ], 200);
+            return response()->json($logs, 200);
         }
-        return $battle->getTurnLogs();
+        $logs[] = "Waiting for next turn...";
+        return response()->json($logs, 200);
 
     }
 
@@ -84,20 +93,29 @@ class GameController extends Controller
         if($game->turns->count() == 0){
             return response()->json(["Game not started"]);
         }
-        $logs[] = ["Game started"];
+        
+        $logs[] = "Game started";
         foreach($game->turns as $turn){
+            $dateTime = "<span class='text-yellow-400'>[".Carbon::parse($turn->created_at)->format('d.m.Y. H:i:s')."]</span>  ";
             if($turn->damage > 0){
                 if($turn->is_destroied == 1){
-                    $logs[] = $turn->attacker->name." ARMY attacked ".$turn->defender->name." ARMY and DESTROYED IT";
+                    $logs[] = $dateTime.$turn->attacker->name." ARMY 🚀 attacked ".$turn->defender->name." ARMY and DESTROYED IT 🏴‍☠️";
                 }else{
-                    $logs[] = $turn->attacker->name." ARMY attacked ".$turn->defender->name." ARMY and DESTROYED ".$turn->damage." UNITS";
+                    $logs[] = $dateTime.$turn->attacker->name." ARMY 🚀 attacked ".$turn->defender->name." ARMY and DESTROYED ".$turn->damage." UNITS 💥";
                 }
             }else{
-                $logs[] = $turn->attacker->name." ARMY attacked ".$turn->defender->name." ARMY and MISSED";
+                $logs[] = $dateTime.$turn->attacker->name." ARMY 🚀 attacked ".$turn->defender->name." ARMY and MISSED 🙊";
             }
         }
+        $armies = $game->armies->where('units', '>', 0);
+        if($armies->count() == 1){
+            $logs[] = "🏆 ".$armies->first()->name." WON THE GAME 🏆";
+        }
+
         if($game->status == 1){
             $logs[] = "Game Finished!";
+        }else{
+            $logs[] = "Waiting for next turn...";
         }
 
         return response()->json($logs);

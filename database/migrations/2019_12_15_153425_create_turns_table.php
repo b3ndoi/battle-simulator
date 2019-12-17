@@ -14,6 +14,7 @@ class CreateTurnsTable extends Migration
     public function up()
     {
         Schema::create('turns', function (Blueprint $table) {
+            $table->bigIncrements('id');
             $table->integer('game_id');
             $table->integer('attacker_id');
             $table->integer('defender_id');
