@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Game;
 use App\Library\BattleSimulation;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class GameController extends Controller
@@ -79,7 +78,7 @@ class GameController extends Controller
             ], 422);
         }
         $armies = $game->armies->where("units", ">", 0);
-        $battle = new BattleSimulation($armies);
+        $battle = new BattleSimulation($game_id, $armies);
         $logs = $battle->getTurnLogs();
         if ($battle->getArmies()->count() == 1) {
             $game->status = 1;
@@ -90,7 +89,12 @@ class GameController extends Controller
         $logs[] = "Waiting for next turn...";
         return response()->json($logs, 200);
     }
-
+    /**
+     * Returns a log of the requested game
+     *
+     * @param int $game_id
+     * @return void
+     */
     public function getLogs($game_id)
     {
         $game = Game::where('id', '=', $game_id)->with(['turns.attacker', 'turns.defender'])->get()->first();
