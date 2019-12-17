@@ -14,21 +14,42 @@ class TurnTest extends TestCase
 	/** @test */
     public function it_returns_a_game_model()
     {
-        $turn = factory(Turn::class)->create();
+        $game = factory(Game::class)->create();
+        $attacker = factory(Army::class)->create(['game_id'=> $game->id]);
+        $deffender = factory(Army::class)->create(['game_id'=> $game->id]);
+        $turn = factory(Turn::class)->create([
+            'game_id'=> $game->id,
+            "attacker_id"=> $attacker->id,
+            "defender_id"=>$deffender->id
+        ]);
         $this->assertInstanceOf(Game::class, $turn->game);
     }
 
 	/** @test */
     public function it_returns_a_army_model_as_attacker()
     {
-        $turn = factory(Turn::class)->create();
+        $game = factory(Game::class)->create();
+        $attacker = factory(Army::class)->create(['game_id'=> $game->id]);
+        $deffender = factory(Army::class)->create(['game_id'=> $game->id]);
+        $turn = factory(Turn::class)->create([
+            'game_id'=> $game->id,
+            "attacker_id"=> $attacker->id,
+            "defender_id"=>$deffender->id
+        ]);
         $this->assertInstanceOf(Army::class, $turn->attacker);
     }
 
     /** @test */
     public function it_returns_a_army_model_as_defender()
     {
-        $turn = factory(Turn::class)->create();
+        $game = factory(Game::class)->create();
+        $attacker = factory(Army::class)->create(['game_id'=> $game->id]);
+        $deffender = factory(Army::class)->create(['game_id'=> $game->id]);
+        $turn = factory(Turn::class)->create([
+            'game_id'=> $game->id,
+            "attacker_id"=> $attacker->id,
+            "defender_id"=>$deffender->id
+        ]);
         $this->assertInstanceOf(Army::class, $turn->defender);
     }
 }
