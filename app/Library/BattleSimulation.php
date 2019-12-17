@@ -21,7 +21,8 @@ class BattleSimulation
         $this->game_id = $game_id;
         $this->runAttack();
     }
-    private function runAttack(){
+    private function runAttack()
+    {
         foreach ($this->armies as $attacker) {
             // only if army is not destroied continiue
             if (!collect($this->destroiedArmies)->contains($attacker->id)) {
