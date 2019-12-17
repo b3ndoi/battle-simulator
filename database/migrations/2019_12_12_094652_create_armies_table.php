@@ -15,12 +15,13 @@ class CreateArmiesTable extends Migration
     {
         Schema::create('armies', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('game_id')->unsigned();
+            $table->bigInteger('game_id')->unsigned();
             $table->string('name');
             $table->integer('units');
             $table->integer('order');
             $table->enum('strategy', ['random', 'weakest', 'strongest']);
             $table->timestamps();
+            $table->foreign('game_id')->references('id')->on('games');
         });
     }
 

@@ -61,9 +61,11 @@ export default {
                 this.errors = {}
                 window.Event.$emit('fresh-armies')
             } catch (error) {
-                console.log(error.response.data)
-                this.errors = error.response.data.errors
-                // alert(error);
+                if(error.response.data.errors){
+                    this.errors = error.response.data.errors
+                }else{
+                    alert(error.response.data.message);
+                }
             }
         }
     }

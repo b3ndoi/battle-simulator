@@ -1,5 +1,5 @@
 <template>
-    <div class="w-2/3 px-3 mt-2">
+    <div class="w-2/3 px-3 mt-2 overflow-y-auto"  style="height: 570px;">
         <div class="mb-2 bg-white shadow rounded-lg p-2 flex justify-between items-center w-full" v-for="army in armies" :key="army.id">
             <div>
                 <span class="font-semibold">{{army.name}}</span><br>

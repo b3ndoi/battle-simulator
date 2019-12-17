@@ -1920,16 +1920,20 @@ __webpack_require__.r(__webpack_exports__);
               };
               this.errors = {};
               window.Event.$emit('fresh-armies');
-              _context.next = 12;
+              _context.next = 11;
               break;
 
             case 8:
               _context.prev = 8;
               _context.t0 = _context["catch"](0);
-              console.log(_context.t0.response.data);
-              this.errors = _context.t0.response.data.errors; // alert(error);
 
-            case 12:
+              if (_context.t0.response.data.errors) {
+                this.errors = _context.t0.response.data.errors;
+              } else {
+                alert(_context.t0.response.data.message);
+              }
+
+            case 11:
             case "end":
               return _context.stop();
           }
@@ -2155,15 +2159,16 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
               this.logs = [].concat(_toConsumableArray(this.logs), _toConsumableArray(battleLogs.data));
               this.isInProgress = false;
               window.Event.$emit('fresh-armies');
-              _context3.next = 13;
+              _context3.next = 14;
               break;
 
             case 10:
               _context3.prev = 10;
               _context3.t0 = _context3["catch"](0);
-              alert(_context3.t0);
+              this.isInProgress = false;
+              alert(_context3.t0.response.data.message);
 
-            case 13:
+            case 14:
             case "end":
               return _context3.stop();
           }
@@ -2190,7 +2195,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             case 8:
               _context4.prev = 8;
               _context4.t0 = _context4["catch"](0);
-              alert(_context4.t0);
+              alert(_context4.t0.response.data.message);
 
             case 11:
             case "end":
@@ -2253,6 +2258,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+//
+//
+//
 //
 //
 //
@@ -2335,6 +2352,34 @@ __webpack_require__.r(__webpack_exports__);
           }
         }
       }, null, this, [[0, 8]]);
+    },
+    addGame: function addGame() {
+      var game;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.async(function addGame$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              _context3.prev = 0;
+              _context3.next = 3;
+              return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.awrap(axios.post('/api/game'));
+
+            case 3:
+              game = _context3.sent;
+              this.games = [].concat(_toConsumableArray(this.games), [game.data]);
+              _context3.next = 10;
+              break;
+
+            case 7:
+              _context3.prev = 7;
+              _context3.t0 = _context3["catch"](0);
+              alert(_context3.t0.response.data.message);
+
+            case 10:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, null, this, [[0, 7]]);
     }
   }
 });
@@ -20932,7 +20977,10 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    { staticClass: "w-2/3 px-3 mt-2" },
+    {
+      staticClass: "w-2/3 px-3 mt-2 overflow-y-auto",
+      staticStyle: { height: "570px" }
+    },
     _vm._l(_vm.armies, function(army) {
       return _c(
         "div",
@@ -20997,7 +21045,7 @@ var render = function() {
       "div",
       {
         staticClass: "w-full p-4 bg-gray-800 rounded-lg mt-2 overflow-y-auto",
-        staticStyle: { height: "528px" },
+        staticStyle: { height: "570px" },
         attrs: { id: "battle-log" }
       },
       [
@@ -21124,18 +21172,30 @@ var render = function() {
     "div",
     { staticClass: "bg-white rounded-lg w-1/3 self-center shadow-lg p-10" },
     [
-      _vm._m(0),
+      _c("div", { staticClass: "flex justify-between" }, [
+        _c("h2", { staticClass: "text-2xl" }, [_vm._v("Games")]),
+        _vm._v(" "),
+        _c(
+          "button",
+          {
+            staticClass:
+              "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4",
+            on: { click: _vm.addGame }
+          },
+          [_vm._v("\n            Add Game\n        ")]
+        )
+      ]),
       _vm._v(" "),
       _vm.games.length > 0 && !_vm.isLoading
         ? _c("table", { staticClass: "table-auto w-full text-center" }, [
-            _vm._m(1),
+            _vm._m(0),
             _vm._v(" "),
             _c(
               "tbody",
               _vm._l(_vm.games, function(game) {
                 return _c("tr", { key: game.id }, [
                   _c("td", [
-                    _c("a", { attrs: { href: "/game/1" } }, [
+                    _c("a", { attrs: { href: "/game/" + game.id } }, [
                       _vm._v(
                         "\n                        Game " +
                           _vm._s(game.id) +
@@ -21144,7 +21204,9 @@ var render = function() {
                     ])
                   ]),
                   _vm._v(" "),
-                  _c("td", [_vm._v(_vm._s(game.armies.length))]),
+                  _c("td", [
+                    _vm._v(_vm._s(game.armies ? game.armies.length : 0))
+                  ]),
                   _vm._v(" "),
                   _c(
                     "td",
@@ -21170,12 +21232,6 @@ var render = function() {
   )
 }
 var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", [_c("h2", { staticClass: "text-2xl" }, [_vm._v("Games")])])
-  },
   function() {
     var _vm = this
     var _h = _vm.$createElement

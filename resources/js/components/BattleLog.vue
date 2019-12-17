@@ -1,7 +1,7 @@
 <template>
   <div class="w-1/2">
         <h2 class="text-2xl">Battle Log</h2>
-        <div id="battle-log" class="w-full p-4 bg-gray-800 rounded-lg mt-2 overflow-y-auto" style="height: 528px;">
+        <div id="battle-log" class="w-full p-4 bg-gray-800 rounded-lg mt-2 overflow-y-auto" style="height: 570px;">
             <ul class="text-green-400" v-if="logs.length > 0">
                 <li class="py-2" v-for="(log, index) in logs" :key="index" v-html="log">{{log}}</li>
             </ul>
@@ -52,7 +52,8 @@ export default {
                 this.isInProgress = false
                 window.Event.$emit('fresh-armies');
             } catch (error) {
-                alert(error)
+                this.isInProgress = false
+                alert(error.response.data.message) 
             }
         },
         async resetGame(){
@@ -61,7 +62,7 @@ export default {
                 this.logs = ["Game not started"];     
                 window.Event.$emit('fresh-armies');   
             } catch (error) {
-                alert(error)
+                alert(error.response.data.message)
             }
         },
     },

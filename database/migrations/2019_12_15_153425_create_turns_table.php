@@ -15,12 +15,15 @@ class CreateTurnsTable extends Migration
     {
         Schema::create('turns', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('game_id');
-            $table->integer('attacker_id');
-            $table->integer('defender_id');
+            $table->bigInteger('game_id')->unsigned();
+            $table->bigInteger('attacker_id')->unsigned();
+            $table->bigInteger('defender_id')->unsigned();
             $table->integer('damage');
             $table->boolean('is_destroied')->default(false);
             $table->timestamps();
+            $table->foreign('game_id')->references('id')->on('games');
+            $table->foreign('attacker_id')->references('id')->on('armies');
+            $table->foreign('defender_id')->references('id')->on('armies');
         });
     }
 

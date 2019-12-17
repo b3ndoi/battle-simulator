@@ -72,7 +72,7 @@ class GameController extends Controller
         if($game->status == 1){
             return response()->json([
                 "message" => "Game finished."
-            ], 200);
+            ], 422);
         }
         $armies = $game->armies->where("units", ">", 0);
         $battle = new BattleSimulation($armies);
