@@ -3,6 +3,7 @@
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
 use App\Army;
+use App\Game;
 use Faker\Generator as Faker;
 use Carbon\Carbon;
 $factory->define(Army::class, function (Faker $faker) {
@@ -12,6 +13,7 @@ $factory->define(Army::class, function (Faker $faker) {
     return [
         // Remove after testing
         // "id" => $faker->uuid(),
+        "game_id" => factory(Game::class)->create()->id,
         "name" => $faker->word(),
         "units" => $units,
         "strategy" => $strategy,

@@ -18,10 +18,9 @@ class BattleSimulation
     public function __construct($armies)
     {
         $this->armies = $armies;
+        $this->runAttack();
     }
-
-    public function getTurnLogs()
-    {
+    private function runAttack(){
         foreach ($this->armies as $attacker) {
             // only if army is not destroied continiue
             if (!collect($this->destroiedArmies)->contains($attacker->id)) {
@@ -94,6 +93,9 @@ class BattleSimulation
             $winner = $this->armies->first();
             $this->logs[] = "🏆 ".$winner->name." ARMY WON THE GAME 🏆";
         }
+    }
+    public function getTurnLogs()
+    {
         return $this->logs;
     }
 

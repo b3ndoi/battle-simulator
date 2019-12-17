@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class ArmyControllerTest extends TestCase
+class ArmyCreationTest extends TestCase
 {
     use RefreshDatabase;
 	/** @test */
@@ -18,6 +18,7 @@ class ArmyControllerTest extends TestCase
         $game = factory(Game::class)->create();
         
         $army = factory(Army::class)->make()->toArray();
+        unset($army['game_id']);
         unset($army['order']);
         $res = $this->json('POST', '/api/game/'.$game->id.'/armies', $army);
         $res->assertStatus(201);
@@ -35,6 +36,7 @@ class ArmyControllerTest extends TestCase
             "defender_id" => 2,
         ]);
         $army = factory(Army::class)->make()->toArray();
+        unset($army['game_id']);
         unset($army['order']);
         $res = $this->json('POST', '/api/game/'.$game->id.'/armies', $army);
         $res_army = $res->original->first();
